@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E69DB961-4DC1-4099-BA9D-94A338A93A7A}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{7ADA426B-CF47-4789-9BC7-3B6AEF2A14A2}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyInventory.Console</RootNamespace>
-    <AssemblyName>MyInventory.Console</AssemblyName>
+    <RootNamespace>MyInventory.Infrastructure.Configurations</RootNamespace>
+    <AssemblyName>MyInventory.Infrastructure.Configurations</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -38,9 +36,6 @@
     <Reference Include="Iesi.Collections">
       <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
@@ -53,18 +48,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="DefaultTableNameConvention.cs" />
+    <Compile Include="ForeignKeyConstraintNameConvention.cs" />
+    <Compile Include="ForeignKeyNameConvention.cs" />
+    <Compile Include="Maps\InventoryMap.cs" />
+    <Compile Include="Maps\ItemMap.cs" />
+    <Compile Include="Maps\ItemStockMap.cs" />
+    <Compile Include="PrimaryKeyNameConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MyInventory.Infrastructure.Configurations\MyInventory.Infrastructure.Configurations.csproj">
-      <Project>{7ADA426B-CF47-4789-9BC7-3B6AEF2A14A2}</Project>
-      <Name>MyInventory.Infrastructure.Configurations</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MyInventory.Model\MyInventory.Model.csproj">
       <Project>{D2344F05-D2AF-4376-9013-9751838AB0D2}</Project>
       <Name>MyInventory.Model</Name>

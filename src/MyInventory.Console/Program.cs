@@ -1,41 +1,88 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FluentNHibernate.Automapping;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
-using FluentNHibernate.Conventions.Helpers;
+using MyInventory.Infrastructure.Configurations;
+using MyInventory.Infrastructure.Configurations.Maps;
 using MyInventory.Model;
-using NHibernate;
 using NHibernate.Dialect;
+using NHibernate.Tool.hbm2ddl;
 
 namespace MyInventory.Console
 {
+    /// <summary>
+    /// Print out database create sql statements    
+    /// </summary>
     class Program
     {
+        /* Set database connection string here */
+        private const string ConnectionString = "Server=localhost;Database=SandboxNHibernate;Trusted_Connection=True;";
+
         static void Main(string[] args)
         {
-            log4net.Config.XmlConfigurator.Configure();
+            var sql = GetNHibernateConfiguration()
+                .ExposeConfiguration(c => new SchemaExport(c).Execute(true, true, false))
+                .BuildConfiguration()
+                .GenerateSchemaCreationScript(new MsSql2012Dialect());
             
-            var sessions = Fluently.Configure()
+            Print(sql);
+        }
+
+        static void Print(string[] lines)
+        {
+            foreach (var line in lines)
+            {
+                if (line.GetType() != typeof(string))
+                {
+                    
+                }
+                System.Console.WriteLine(line);
+            }
+        }
+
+        private static FluentConfiguration GetNHibernateConfiguration()
+        {
+            return Fluently.Configure()
                 .Database(
-                    MsSqlConfiguration.MsSql2012.
-                        ShowSql()
-                        .ConnectionString("Server=localhost;Database=MyInventory;Trusted_Connection=True;"))                
-                .Mappings(m => m.FluentMappings
-                    .AddFromAssemblyOf<Warehouse>()                    
-                    .Conventions.Add(
-                        PrimaryKey.Name.Is(x => "Id"),
-                        DefaultLazy.Always(),
-                        ForeignKey.EndsWith("Id")
-                    ))                    
-                .BuildSessionFactory();
+                    MsSqlConfiguration.MsSql2012
+                        .ConnectionString(ConnectionString)
+                        .ShowSql())
+                .Mappings(m =>
+                {
+                    RegisterAutoMapping(m);
+                    RegisterFluentMappings(m);
+                });
+        }
 
+        private static void RegisterFluentMappings(MappingConfiguration m)
+        {
+            m.FluentMappings.AddFromAssemblyOf<ItemMap>(); /* To tell NHibernate the location of class maps */
+        }
 
-            var se = sessions.OpenSession();
-
-
+        private static void RegisterAutoMapping(MappingConfiguration m)
+        {
+            /* Here we use SandboxAutoMappingConfiguration class */
+            var config = AutoMap.AssemblyOf<Warehouse>(new SandboxAutoMappingConfiguration())
+                .Conventions.Setup(
+                c =>
+                {
+                    c.Add<PrimaryKeyNameConvention>();
+                    c.Add<ForeignKeyNameConvention>();
+                    c.Add<ForeignKeyConstraintNameConvention>();
+                    c.Add<DefaultTableNameConvention>();
+                });
+            m.AutoMappings.Add(config);
         }
     }
+
+    /// <summary>
+    /// This will tell NHibernate to only map classes that is a subclass of BaseModel and is not abstract class
+    /// </summary>
+    public class SandboxAutoMappingConfiguration : DefaultAutomappingConfiguration
+    {
+        public override bool ShouldMap(Type type)
+        {
+            return type.IsSubclassOf(typeof(BaseModel)) && !type.IsAbstract;
+        }
+    }    
 }
